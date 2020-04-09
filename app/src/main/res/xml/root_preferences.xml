@@ -14,7 +14,7 @@
     <PreferenceCategory app:title="@string/translate_header">
         <SwitchPreferenceCompat
             app:key="sync"
-            app:summary="@string/translate_all_title"
+            app:summary="@string/translate_all_summary"
             app:title="@string/translate_all_title" />
     </PreferenceCategory>
 
