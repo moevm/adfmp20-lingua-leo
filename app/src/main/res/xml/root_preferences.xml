@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/auth_header">
+        <EditTextPreference
+            app:key="ll_login"
+            app:title="@string/login_title"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="ll_password"
+            app:title="@string/password_title"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/translate_header">
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:summary="@string/translate_all_title"
+            app:title="@string/translate_all_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

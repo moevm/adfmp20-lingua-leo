@@ -2,5 +2,16 @@
     <string name="app_name">LinguaLeo</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_settings">Настройки</string>
+
+    <!-- Preference Titles -->
+    <string name="auth_header">Авторизация LinguaLeo</string>
+    <string name="translate_header">Параметры перевода</string>
+
+    <!-- Authorization Preferences -->
+    <string name="login_title">Логин</string>
+    <string name="password_title">Пароль</string>
+
+    <!-- Translation Preferences -->
+    <string name="translate_all_title">Автоперевод</string>
 </resources>
