@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.etu.lingualeo.R
 import kotlinx.android.synthetic.main.word_selector_activity.*
@@ -49,6 +50,10 @@ class WordSelectorActivity : AppCompatActivity() {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, words)
         wordListView.adapter = adapter
         wordListView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+        wordListView.setOnItemClickListener { parent, view, position, id ->
+            selectFromList((view as TextView).text.toString(), wordListView.isItemChecked(position))
+        }
+
         adapter.notifyDataSetChanged()
         textView4.setOnClickListener {
             text.invalidate()
@@ -60,6 +65,11 @@ class WordSelectorActivity : AppCompatActivity() {
         if (isInArray) selectedWords.remove(word) else selectedWords.add(word)
         wordListView.setItemChecked(words.indexOf(word), !isInArray)
         adapter.notifyDataSetChanged()
+        text.invalidate()
+    }
+
+    fun selectFromList(word: String, selected: Boolean) {
+        if(selected) selectedWords.add(word) else selectedWords.remove(word)
         text.invalidate()
     }
 
