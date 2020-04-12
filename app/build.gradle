@@ -57,4 +57,5 @@ dependencies {
     implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'me.saket:better-link-movement-method:2.2.0'
+    implementation 'com.google.android.gms:play-services-vision:20.0.0'
 }
