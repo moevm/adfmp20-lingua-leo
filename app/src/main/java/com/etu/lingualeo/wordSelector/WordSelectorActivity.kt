@@ -1,5 +1,6 @@
 package com.etu.lingualeo.wordSelector
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
@@ -7,12 +8,15 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.etu.lingualeo.R
+import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.word_selector_activity.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
@@ -27,17 +31,33 @@ const val TEST_STR = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, s
 class WordSelectorActivity : AppCompatActivity() {
 
     var words = ArrayList<String>()
-    var wordsDistinct = ArrayList<String>()
     var selectedWords = ArrayList<String>()
     val knownWords = ArrayList<String>()
     var ss = SpannableString(" ")
 
     private lateinit var adapter: ArrayAdapter<String>
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_save -> {
+            val intent = Intent(this, WordTranslationSelectorActivity::class.java)
+            intent.putExtra("words", ArrayList(selectedWords.sortedBy { it }))
+            startActivity(intent)
+            finish()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_selector_activity)
         supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.title = "Выбор слов из текста"
 
         ss = SpannableString(TEST_STR)
 
@@ -69,7 +89,7 @@ class WordSelectorActivity : AppCompatActivity() {
     }
 
     fun selectFromList(word: String, selected: Boolean) {
-        if(selected) selectedWords.add(word) else selectedWords.remove(word)
+        if (selected) selectedWords.add(word) else selectedWords.remove(word)
         text.invalidate()
     }
 
@@ -79,6 +99,7 @@ class WordSelectorActivity : AppCompatActivity() {
     }
 
     fun getKnownWords() {
+        //TODO: получить список слов из словаря
         knownWords.add("ipsum")
         knownWords.add("sit")
         knownWords.add("adipiscing")
@@ -114,7 +135,6 @@ class WordSelectorActivity : AppCompatActivity() {
             }
         }
         words.removeAll { word -> wordsToRemove.contains(word) }
-        Log.i("ar", words.toString())
         words = ArrayList(words.distinct().sortedBy { it })
     }
 }

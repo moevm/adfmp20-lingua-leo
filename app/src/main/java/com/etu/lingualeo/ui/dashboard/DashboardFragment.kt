@@ -9,6 +9,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.etu.lingualeo.R
 import com.etu.lingualeo.wordSelector.WordSelectorActivity
+import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 
 class DashboardFragment : Fragment() {
