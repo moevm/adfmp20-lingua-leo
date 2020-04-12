@@ -18,6 +18,8 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.etu.lingualeo.R
+import com.etu.lingualeo.RandomString
+import com.etu.lingualeo.textEditor.TextEditorActivity
 import com.etu.lingualeo.wordSelector.WordSelectorActivity
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.text.TextBlock
@@ -26,6 +28,7 @@ import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 
 
 const val PERMISSION_CAMERA = 1
@@ -55,14 +58,9 @@ class DashboardFragment : Fragment() {
             requestPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_CAMERA)
         }
 
-        root.findViewById<Button>(R.id.button).setOnClickListener {
-            startActivity(Intent(activity, WordSelectorActivity::class.java))
-            val a: View = activity!!.findViewById(R.id.navigation_home)
-            Handler().postDelayed({
-                a.performClick()
-            }, 100)
-
-        }
+//        root.findViewById<Button>(R.id.button).setOnClickListener {
+//            startActivity(Intent(activity, WordSelectorActivity::class.java))
+//}
 
         return root
     }
@@ -86,12 +84,10 @@ class DashboardFragment : Fragment() {
 
     fun prepareFile(): Uri {
         val outputDir = context?.externalCacheDir
-        val date = Date()
-        val df: DateFormat = SimpleDateFormat("dd-hh-mm-ss")
         val outputFile = FileProvider.getUriForFile(
             context!!,
             context!!.getApplicationContext().getPackageName() + ".p_provider",
-            File.createTempFile(df.format(date), ".jpg", outputDir)
+            File.createTempFile(RandomString(12).nextString(), ".jpg", outputDir)
         );
         Log.i("file", outputFile.toString())
         return outputFile
@@ -100,12 +96,21 @@ class DashboardFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RESULT_CAMERA && resultCode == Activity.RESULT_OK) {
-            val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName);
-            getTextFromImage(picture)
+            Handler().postDelayed({
+                val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName);
+                val text = getTextFromImage(picture)
+                val intent = Intent(activity, TextEditorActivity::class.java)
+                intent.putExtra("text", text)
+                startActivity(intent)
+                val a: View = activity!!.findViewById(R.id.navigation_home)
+                Handler().postDelayed({
+                    a.performClick()
+                }, 100)
+            }, 100)
         }
     }
 
-    fun getTextFromImage(bitmap: Bitmap) {
+    fun getTextFromImage(bitmap: Bitmap): String {
         val textRecognizer = TextRecognizer.Builder(context).build()
         val frame = Frame.Builder().setBitmap(bitmap).build()
         val items = textRecognizer.detect(frame)
@@ -115,5 +120,6 @@ class DashboardFragment : Fragment() {
             sb.append("\n")
         }
         Log.i("aa", sb.toString())
+        return sb.toString()
     }
 }

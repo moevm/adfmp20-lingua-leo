@@ -20,13 +20,12 @@ import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.word_selector_activity.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
-
-const val TEST_STR = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-        "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud " +
-        "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure " +
-        "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-        "mollit anim id est laborum."
+//const val TEST_STR = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
+//        "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud " +
+//        "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure " +
+//        "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+//        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
+//        "mollit anim id est laborum."
 
 class WordSelectorActivity : AppCompatActivity() {
 
@@ -59,7 +58,7 @@ class WordSelectorActivity : AppCompatActivity() {
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "Выбор слов из текста"
 
-        ss = SpannableString(TEST_STR)
+        ss = SpannableString(intent.getStringExtra("text"))
 
         getWordsFromText()
         generateSelectableString()
@@ -95,7 +94,7 @@ class WordSelectorActivity : AppCompatActivity() {
 
     fun getWordsFromText() {
         words =
-            ArrayList(TEST_STR.split(Regex("(?<=[.,/#!\$%^&*;:{}=\\-_`~() ])|(?=[.,/#!\$%^&*;:{}=\\-_`~() ])")))
+            ArrayList(ss.toString().split(Regex("(?<=[.,/#!\$%^&*;:{}=\\-_`~() ])|(?=[.,/#!\$%^&*;:{}=\\-_`~() ])")))
     }
 
     fun getKnownWords() {
