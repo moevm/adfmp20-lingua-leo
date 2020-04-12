@@ -94,7 +94,7 @@ class WordSelectorActivity : AppCompatActivity() {
 
     fun getWordsFromText() {
         words =
-            ArrayList(ss.toString().split(Regex("(?<=[.,/#!\$%^&*;:{}=\\-_`~() ])|(?=[.,/#!\$%^&*;:{}=\\-_`~() ])")))
+            ArrayList(ss.toString().split(Regex("(?<=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])|(?=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])")))
     }
 
     fun getKnownWords() {

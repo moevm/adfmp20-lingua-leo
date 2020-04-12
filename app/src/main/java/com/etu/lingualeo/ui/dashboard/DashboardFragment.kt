@@ -96,7 +96,7 @@ class DashboardFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RESULT_CAMERA && resultCode == Activity.RESULT_OK) {
-            Handler().postDelayed({
+//            Handler().postDelayed({
                 val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName);
                 val text = getTextFromImage(picture)
                 val intent = Intent(activity, TextEditorActivity::class.java)
@@ -106,7 +106,7 @@ class DashboardFragment : Fragment() {
                 Handler().postDelayed({
                     a.performClick()
                 }, 100)
-            }, 100)
+//            }, 100)
         }
     }
 
