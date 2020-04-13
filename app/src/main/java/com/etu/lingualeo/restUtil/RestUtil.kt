@@ -35,7 +35,7 @@ class RestUtil() {
         client.newCall(request).enqueue(responseCallback)
     }
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, onResult: (status: Boolean) -> Unit) {
         this.get(this.apiLoginUrl, hashMapOf("email" to email, "password" to password), object: Callback {
             override fun onResponse(call: Call, response: Response) {
                 val responseJsonString = response.body!!.string()
@@ -43,11 +43,13 @@ class RestUtil() {
                 if (loginResponse != null) {
                     println(loginResponse.user.fname)
                 }
+                onResult(true)
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 println("Login Failure")
                 println(e.toString())
+                onResult(false)
             }
         })
     }
