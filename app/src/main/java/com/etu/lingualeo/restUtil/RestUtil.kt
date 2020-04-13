@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
+import java.lang.Exception
 
 class RestUtil() {
 
@@ -38,12 +39,16 @@ class RestUtil() {
     fun login(email: String, password: String, onResult: (status: Boolean) -> Unit) {
         this.get(this.apiLoginUrl, hashMapOf("email" to email, "password" to password), object: Callback {
             override fun onResponse(call: Call, response: Response) {
-                val responseJsonString = response.body!!.string()
-                val loginResponse = Klaxon().parse<LoginResponseData>(responseJsonString)
-                if (loginResponse != null) {
-                    println(loginResponse.user.fname)
+                try {
+                    val responseJsonString = response.body!!.string()
+                    val loginResponse = Klaxon().parse<LoginResponseData>(responseJsonString)
+                    if (loginResponse != null) {
+                        println(loginResponse.user.fname)
+                    }
+                    onResult(true)
+                } catch(e: Exception) {
+                    onResult(false)
                 }
-                onResult(true)
             }
 
             override fun onFailure(call: Call, e: IOException) {
