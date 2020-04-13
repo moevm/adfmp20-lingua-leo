@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.etu.lingualeo.restUtil.RestUtil
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,5 +23,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_settings))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        val restUtil = RestUtil()
+        restUtil.login("sergeenkov.michael@gmail.com", "jBnuYnau@")
+        println("Login response")
     }
 }

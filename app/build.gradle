@@ -37,6 +37,10 @@ android {
 
 }
 
+repositories {
+    jcenter()
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -58,4 +62,6 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'me.saket:better-link-movement-method:2.2.0'
     implementation 'com.google.android.gms:play-services-vision:20.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.5.0'
+    implementation 'com.beust:klaxon:5.0.1'
 }
