@@ -1,6 +1,7 @@
 package com.etu.lingualeo
 
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         val restUtil = RestUtil()
-        restUtil.login("sergeenkov.michael@gmail.com", "jBnuYnau@")
+        restUtil.login("sergeenkov.michael@gmail.com", "jBnuYnau@", {status: Boolean -> Log.i("status", status.toString())})
         println("Login response")
     }
 }
