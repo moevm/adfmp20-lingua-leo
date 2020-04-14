@@ -131,12 +131,14 @@ class RestUtil() {
                     val getWordsResponse = Klaxon().parse<GetWordsResponseData>(responseJsonString)
                     val wordList = arrayListOf<WordListItem>()
                     if (getWordsResponse != null) {
-                        for (item: WordItemData in getWordsResponse.data[0].words) {
-                            wordList.add(WordListItem(
-                                    word = item.wordValue,
-                                    translation = item.combinedTranslation,
-                                    imageUrl = item.picture
-                            ))
+                        for (dataItem: GetWordsData in getWordsResponse.data) {
+                            for (item: WordItemData in dataItem.words) {
+                                wordList.add(WordListItem(
+                                        word = item.wordValue,
+                                        translation = item.combinedTranslation,
+                                        imageUrl = item.picture
+                                ))
+                            }
                         }
                         onResult(true, wordList)
                     } else {
