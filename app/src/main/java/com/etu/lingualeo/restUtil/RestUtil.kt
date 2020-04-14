@@ -22,6 +22,7 @@ class RestUtil() {
     private val apiGetWordsUrl = this.apiBaseUrl + "GetWords"
     private val apiGetTranslatesUrl = this.apiBaseUrl + "getTranslates"
     private val apiSetWordsUrl = this.apiBaseUrl + "SetWords"
+    private val apiUploadImageUrl = "https://upload.lingualeo.com/UploadImage"
 
     private val apiHeaderReferer = "https://lingualeo.com/ru"
 
@@ -240,6 +241,62 @@ class RestUtil() {
         })
     }
 
+    // Загрузка изображения на сервер
+    fun uploadPicture(base64: String, onResult: (status: Boolean, url: String?) -> Unit) {
+        val uploadImageRequestData = UploadImageRequestData(base64)
+        this.post(this.apiUploadImageUrl, Klaxon().toJsonString(uploadImageRequestData), responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val uploadImageResponseData = response.body?.string()?.let { Klaxon().parse<UploadImageResponseData>(it) }
+                    if ((uploadImageResponseData == null) || (uploadImageResponseData.status != "ok")) {
+                        throw IOException("Image uploading error")
+                    }
+                    onResult(true, uploadImageResponseData.url)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false, null)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false, null)
+            }
+        })
+    }
+
+    fun changePicture(wordId: Number, url: String, onResult: (status: Boolean) -> Unit) {
+        val changePictureRequestData = ChangePictureRequestData(
+                data = ChangePictureData(
+                        wordIds = listOf(wordId),
+                        valueList = ChangePictureValueListData(
+                                translation = ChangePictureTranslationData(
+                                        pic = url
+                                )
+                        )
+                )
+        )
+        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(changePictureRequestData), responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val setWordsResponseData = response.body?.string()?.let { Klaxon().parse<SetWordsResponseData>(it) }
+                    if ((setWordsResponseData == null) || (setWordsResponseData.status != "ok")) {
+                        throw IOException("Change image error")
+                    }
+                    onResult(true)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false)
+            }
+        })
+    }
+
 }
 
 data class LoginRequestData(
@@ -335,3 +392,34 @@ data class DeleteWordsData(
 )
 
 data class DeleteWordsValueListData(val globalSetId: Number = 1)
+
+data class UploadImageRequestData(
+        val base64: String,
+        val directory: String = "uploads/picture/translation"
+)
+
+data class UploadImageResponseData(
+        val url: String,
+        val status: String
+)
+
+data class ChangePictureRequestData(
+        val op: String = "new_updateWordAttr",
+        val data: ChangePictureData
+)
+
+data class ChangePictureData(
+        val action: String = "update",
+        val mode: String = "update",
+        val wordIds: List<Number>,
+        val valueList: ChangePictureValueListData
+)
+
+data class ChangePictureValueListData(
+        val translation: ChangePictureTranslationData
+)
+
+data class ChangePictureTranslationData(
+        val pic: String,
+        val id: Number = 1
+)
