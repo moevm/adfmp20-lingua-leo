@@ -1,6 +1,7 @@
 package com.etu.lingualeo.restUtil
 
 import android.util.Log
+import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import com.etu.lingualeo.ui.home.WordListItem
 import okhttp3.*
@@ -19,6 +20,7 @@ class RestUtil() {
     private val apiBaseUrl = "https://api.lingualeo.com/"
     private val apiLoginUrl = "https://lingualeo.com/auth"
     private val apiGetWordsUrl = this.apiBaseUrl + "GetWords"
+    private val apiGetTranslatesUrl = this.apiBaseUrl + "getTranslates"
 
     private val apiHeaderReferer = "https://lingualeo.com/ru"
 
@@ -123,7 +125,7 @@ class RestUtil() {
                 }
             }
         """.trimIndent()
-        this.post(this.apiGetWordsUrl, params, hashMapOf("Content-type" to "application/json"), object : Callback {
+        this.post(this.apiGetWordsUrl, params, responseCallback = object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val responseJsonString = response.body!!.string()
@@ -156,12 +158,76 @@ class RestUtil() {
         })
     }
 
+    fun getTranslations(word: String, onResult: (status: Boolean, translation: TranslationResponseData?) -> Unit) {
+        this.post(this.apiGetTranslatesUrl, Klaxon().toJsonString(TranslationRequestData(word)), responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val translationResponseData = response.body?.string()?.let { Klaxon().parse<TranslationResponseData>(it) }
+                    onResult(true, translationResponseData)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false, null)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false, null)
+            }
+        })
+    }
+
 }
 
-data class LoginRequestData(val credentials: LoginCredentialsData, val type: String = "mixed")
-data class LoginCredentialsData(val email: String, val password: String)
-data class LoginResponseData(val accessToken: String, val refreshToken: String, val expiredAt: Number, val userId: Number)
+data class LoginRequestData(
+        val credentials: LoginCredentialsData,
+        val type: String = "mixed"
+)
+
+data class LoginCredentialsData(
+        val email: String,
+        val password: String
+)
+
+data class LoginResponseData(
+        val accessToken: String,
+        val refreshToken: String,
+        val expiredAt: Number,
+        val userId: Number
+)
 
 class GetWordsResponseData(val data: Array<GetWordsData>)
+
 class GetWordsData(val words: Array<WordItemData>)
-data class WordItemData(val wordValue: String, val combinedTranslation: String, val picture: String)
+
+data class WordItemData(
+        val wordValue: String,
+        val combinedTranslation: String,
+        val picture: String
+)
+
+data class TranslationRequestData(val text: String)
+
+data class TranslationResponseData(
+        @Json(name = "word_id")
+        val wordId: Number,
+
+        @Json(name = "word_value")
+        val word: String,
+
+        @Json(name = "translate")
+        val translations: List<TranslationData>
+)
+
+data class TranslationData(
+        @Json(name = "id")
+        val translationId: Number,
+
+        @Json(name = "value")
+        val translation: String,
+
+        val votes: Number,
+
+        @Json(name = "pic_url")
+        val picture: String
+)
