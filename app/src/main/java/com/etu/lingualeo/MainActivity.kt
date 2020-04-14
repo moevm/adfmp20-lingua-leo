@@ -11,6 +11,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.etu.lingualeo.restUtil.RestUtil
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        val restUtil = RestUtil()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +27,5 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_settings))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        val restUtil = RestUtil()
-        restUtil.login("sergeenkov.michael@gmail.com", "jBnuYnau@", {status: Boolean -> Log.i("status", status.toString())})
-        println("Login response")
     }
 }

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.etu.lingualeo.MainActivity
 import com.etu.lingualeo.R
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.collections.ArrayList
@@ -19,7 +20,7 @@ class HomeFragment : Fragment() {
         val recyclerView: FastScrollRecyclerView = root.findViewById(R.id.recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        getMockWords()
+        getWords()
 
         recyclerView.adapter = WordListAdapter(words)
         return root
@@ -39,5 +40,21 @@ class HomeFragment : Fragment() {
             word
         })
         words = ArrayList(words.sortedBy { it.word })
+    }
+
+    fun getWords() {
+        println("kek")
+        MainActivity.restUtil.getWords { status: Boolean, words: ArrayList<WordListItem>? ->
+            run {
+                if ((status) && (words != null)) {
+                    this.words = ArrayList(words.map { word ->
+                        word.word = word.word.capitalize()
+                        word.translation = word.translation.capitalize()
+                        word
+                    })
+                    this.words = ArrayList(words.sortedBy { it.word })
+                }
+            }
+        }
     }
 }

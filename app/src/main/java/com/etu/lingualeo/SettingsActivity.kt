@@ -45,8 +45,7 @@ class SettingsActivity : AppCompatActivity() {
                 val login = sharedPreferences.getString("ll_login", null)
                 val password = sharedPreferences.getString("ll_password", null)
                 if (login != null && password != null) {
-                    val restUtil = RestUtil()
-                    restUtil.login(login, password, { status: Boolean ->
+                    MainActivity.restUtil.login(login, password, { status: Boolean ->
                         activity!!.runOnUiThread {
                             Toast.makeText(
                                 context,
