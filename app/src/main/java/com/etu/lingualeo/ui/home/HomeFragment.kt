@@ -20,6 +20,8 @@ class HomeFragment : Fragment() {
 
     var words = ArrayList<WordListItem>()
 
+    lateinit var adapter: WordListAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,8 +32,8 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         getWords()
-
-        recyclerView.adapter = WordListAdapter(words)
+        adapter =  WordListAdapter(words)
+        recyclerView.adapter = adapter
         return root
     }
 
@@ -71,15 +73,16 @@ class HomeFragment : Fragment() {
                     }
                 } else {
                     RestUtil.instance.getWords { status: Boolean, words: ArrayList<WordListItem>? ->
-                        Log.i("test", words.toString())
                         run {
                             if ((status) && (words != null)) {
-                                this.words = ArrayList(words.map { word ->
+                                this.words.clear()
+                                for(word in words) {
                                     word.word = word.word.capitalize()
                                     word.translation = word.translation.capitalize()
-                                    word
-                                })
-                                this.words = ArrayList(words.sortedBy { it.word })
+                                    this.words.add(word)
+                                }
+                                this.words.sortBy { it.word }
+                                activity!!.runOnUiThread { adapter.notifyDataSetChanged() }
                             } else {
                                 activity!!.runOnUiThread {
                                     statusText.text = "Ваш словарь пуст"
