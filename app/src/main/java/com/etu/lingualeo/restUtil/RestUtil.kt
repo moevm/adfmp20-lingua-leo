@@ -17,8 +17,10 @@ class RestUtil() {
     }
 
     private val apiBaseUrl = "https://api.lingualeo.com/"
-    private val apiLoginUrl = this.apiBaseUrl + "api/login"
+    private val apiLoginUrl = "https://lingualeo.com/auth"
     private val apiGetWordsUrl = this.apiBaseUrl + "GetWords"
+
+    private val apiHeaderReferer = "https://lingualeo.com/ru"
 
     private val client = OkHttpClient.Builder()
             .cookieJar(object : CookieJar {
@@ -45,22 +47,27 @@ class RestUtil() {
         client.newCall(request).enqueue(responseCallback)
     }
 
-    private fun post(url: String, json: String = "", responseCallback: Callback) {
+    private fun post(url: String, json: String = "", customHeaders: HashMap<String, String>? = null, responseCallback: Callback) {
         val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
         val body = json.toRequestBody(jsonMediaType)
-        val request = Request.Builder()
-                .url(url)
-                .post(body)
-                .build()
+        var requestBuilder = Request.Builder().url(url)
+        if (customHeaders != null) {
+            for ((header, value) in customHeaders) {
+                requestBuilder = requestBuilder.addHeader(header, value)
+            }
+        }
+        requestBuilder = requestBuilder.post(body)
+        val request = requestBuilder.build()
         client.newCall(request).enqueue(responseCallback)
     }
 
     fun login(email: String, password: String, onResult: (status: Boolean) -> Unit) {
-        this.get(this.apiLoginUrl, hashMapOf("email" to email, "password" to password), object : Callback {
+        val refererHeaders = hashMapOf<String, String>("Referer" to this.apiHeaderReferer)
+        val loginRequestData = LoginRequestData(LoginCredentialsData(email, password))
+        this.post(this.apiLoginUrl, Klaxon().toJsonString(loginRequestData), refererHeaders, object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 try {
-                    val responseJsonString = response.body!!.string()
-                    val loginResponse = Klaxon().parse<LoginResponseData>(responseJsonString)
+                    val loginResponseData = response.body?.string()?.let { Klaxon().parse<LoginResponseData>(it) }
                     onResult(true)
                 } catch (e: Exception) {
                     onResult(false)
@@ -150,8 +157,10 @@ class RestUtil() {
 
 }
 
-data class LoginResponseData(val rev: Number, val user: UserData)
-data class UserData(val fname: String, val avatar: String)
+data class LoginRequestData(val credentials: LoginCredentialsData, val type: String = "mixed")
+data class LoginCredentialsData(val email: String, val password: String)
+data class LoginResponseData(val accessToken: String, val refreshToken: String, val expiredAt: Number, val userId: Number)
+
 class GetWordsResponseData(val data: Array<GetWordsData>)
 class GetWordsData(val words: Array<WordItemData>)
 data class WordItemData(val wordValue: String, val combinedTranslation: String, val picture: String)
