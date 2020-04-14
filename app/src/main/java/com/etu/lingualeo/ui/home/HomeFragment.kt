@@ -4,11 +4,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,9 +19,10 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlin.collections.ArrayList
 
-class HomeFragment : Fragment() {
+class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
 
     var words = ArrayList<WordListItem>()
+    var wordsShown = ArrayList<WordListItem>()
 
     lateinit var adapter: WordListAdapter
 
@@ -36,10 +36,41 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         getWords()
-        adapter =  WordListAdapter(words)
+        adapter =  WordListAdapter(wordsShown)
         recyclerView.adapter = adapter
         registerForContextMenu(recyclerView)
+        setHasOptionsMenu(true)
         return root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        Log.i("dsg", "aekrjlESAJK")
+        inflater.inflate(R.menu.search_menu, menu)
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = MenuItemCompat.getActionView(searchItem) as SearchView
+        searchView.setOnQueryTextListener(this)
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        wordsShown.clear()
+        if(newText != null && newText != "") {
+            val newWords = words.filter { word -> word.word.contains(newText.capitalize()) || word.translation.contains(newText.capitalize()) }
+            Log.i("asra", newText)
+            Log.i("asra", newWords.toString())
+            for(word in newWords) {
+                wordsShown.add(word)
+            }
+        } else {
+            for(word in words) {
+                wordsShown.add(word)
+            }
+        }
+        adapter.notifyDataSetChanged()
+        return true
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -72,12 +103,16 @@ class HomeFragment : Fragment() {
                         run {
                             if ((status) && (words != null)) {
                                 this.words.clear()
+                                this.wordsShown.clear()
                                 for(word in words) {
                                     word.word = word.word.capitalize()
                                     word.translation = word.translation.capitalize()
                                     this.words.add(word)
                                 }
                                 this.words.sortBy { it.word }
+                                for(word in this.words) {
+                                    wordsShown.add(word)
+                                }
                                 activity!!.runOnUiThread { adapter.notifyDataSetChanged() }
                             } else {
                                 activity!!.runOnUiThread {
