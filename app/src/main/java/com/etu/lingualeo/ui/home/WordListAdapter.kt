@@ -34,7 +34,7 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
             holder.image
         )
         holder.itemView.setOnLongClickListener {
-            this.position = items[holder.position].wordId
+            this.position = items[holder.position].wordId.toInt()
             false
         }
     }

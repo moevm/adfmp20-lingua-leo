@@ -1,5 +1,6 @@
 package com.etu.lingualeo.ui.home
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -7,12 +8,14 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.etu.lingualeo.MainActivity
 import com.etu.lingualeo.R
 import com.etu.lingualeo.restUtil.RestUtil
+import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlin.collections.ArrayList
@@ -40,10 +43,10 @@ class HomeFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-//        when(item.toString()) {
-//            "Выбрать перевод" ->
-//        }
-        Log.i("wewq", adapter.position.toString())
+        when(item.toString()) {
+            "Выбрать перевод" -> launchChangeTranslation(adapter.position)
+            "Удалить" -> deleteWord(adapter.position)
+        }
         return super.onContextItemSelected(item)
     }
 
@@ -90,7 +93,26 @@ class HomeFragment : Fragment() {
         })
     }
 
-    fun launchChangeTranslation(wordListId: Int) {
+    fun launchChangeTranslation(wordId: Int) {
+        val word = words.find { word -> word.wordId == wordId }
+        if(word != null) {
+            val array = ArrayList<String>()
+            array.add(word.word)
+            val intent = Intent(context, WordTranslationSelectorActivity::class.java)
+            intent.putExtra("words", array)
+            startActivity(intent)
+        }
+    }
 
+    fun deleteWord(wordId: Int) {
+        val word = words.find { word -> word.wordId == wordId }
+        activity!!.runOnUiThread { Toast.makeText(context, "Удаление...", Toast.LENGTH_SHORT).show() }
+        if(word != null) {
+            RestUtil.instance.deleteWord(wordId, {status ->
+                if(status) {
+                    activity!!.runOnUiThread { getWords() }
+                }
+            })
+        }
     }
 }
