@@ -24,14 +24,13 @@ class RestUtil() {
 
     private val client = OkHttpClient.Builder()
             .cookieJar(object : CookieJar {
-                private val cookieStore: HashMap<HttpUrl, List<Cookie>> = HashMap()
+                private var cookies: List<Cookie> = listOf()
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    cookieStore[url] = cookies
+                    this.cookies = cookies
                 }
 
                 override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    val cookies = cookieStore[url]
-                    return cookies ?: ArrayList()
+                    return this.cookies
                 }
             })
             .build()
@@ -124,7 +123,7 @@ class RestUtil() {
                 }
             }
         """.trimIndent()
-        this.post(this.apiGetWordsUrl, responseCallback = object : Callback {
+        this.post(this.apiGetWordsUrl, params, hashMapOf("Content-type" to "application/json"), object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val responseJsonString = response.body!!.string()
