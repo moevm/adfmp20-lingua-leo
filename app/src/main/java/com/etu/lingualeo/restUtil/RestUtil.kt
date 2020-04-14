@@ -142,7 +142,7 @@ class RestUtil() {
                                         word = item.wordValue,
                                         translation = item.combinedTranslation,
                                         imageUrl = item.picture,
-                                        wordId = item.id.toInt()
+                                        wordId = item.id
                                 ))
                             }
                         }
@@ -196,7 +196,33 @@ class RestUtil() {
                         )
                 ))
         )
-        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(setWordsRequestData),responseCallback = object : Callback {
+        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(setWordsRequestData), responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val setWordsResponseData = response.body?.string()?.let { Klaxon().parse<SetWordsResponseData>(it) }
+                    onResult(true)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false)
+            }
+        })
+    }
+
+    // Удаление слова из словаря
+    fun deleteWord(wordId: Number, onResult: (status: Boolean) -> Unit) {
+        val deleteWordRequestData = DeleteWordRequestData(
+                data = listOf(DeleteWordsData(
+                        wordIds = listOf(wordId),
+                        valueList = DeleteWordsValueListData()
+                ))
+        )
+        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(deleteWordRequestData), responseCallback = object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val setWordsResponseData = response.body?.string()?.let { Klaxon().parse<SetWordsResponseData>(it) }
@@ -294,3 +320,18 @@ data class SetWordsTranslationData(
 )
 
 data class SetWordsResponseData(val status: String)
+
+data class DeleteWordRequestData(
+        val op: String = "groupActionWithWords {action: delete}",
+        val data: List<DeleteWordsData>
+)
+
+data class DeleteWordsData(
+        val action: String = "delete",
+        val mode: String = "delete",
+        val wordSetId: Number = 1,
+        val wordIds: List<Number>,
+        val valueList: DeleteWordsValueListData
+)
+
+data class DeleteWordsValueListData(val globalSetId: Number = 1)

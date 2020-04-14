@@ -77,4 +77,4 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
     }
 }
 
-class WordListItem(var word: String, var translation: String, var imageUrl: String? = null, var wordId: Int)
+class WordListItem(var word: String, var translation: String, var imageUrl: String? = null, var wordId: Number)
