@@ -82,11 +82,11 @@ class HomeFragment : Fragment() {
                                 this.words = ArrayList(words.sortedBy { it.word })
                             } else {
                                 activity!!.runOnUiThread {
-                                    progressBar.visibility = View.GONE
                                     statusText.text = "Ваш словарь пуст"
                                     statusText.visibility = View.VISIBLE
                                 }
                             }
+                            activity!!.runOnUiThread { progressBar.visibility = View.GONE }
                         }
                     }
                 }
