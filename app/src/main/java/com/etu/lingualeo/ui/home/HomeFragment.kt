@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -34,7 +35,13 @@ class HomeFragment : Fragment() {
         getWords()
         adapter =  WordListAdapter(words)
         recyclerView.adapter = adapter
+        registerForContextMenu(recyclerView)
         return root
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        
+        return super.onContextItemSelected(item)
     }
 
     override fun onResume() {

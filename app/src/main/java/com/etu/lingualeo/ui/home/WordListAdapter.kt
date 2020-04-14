@@ -1,7 +1,7 @@
 package com.etu.lingualeo.ui.home
 
-import android.annotation.SuppressLint
-import android.util.Log
+import android.view.ContextMenu
+import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +12,12 @@ import com.etu.lingualeo.R
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView.SectionedAdapter
 import com.squareup.picasso.Picasso
 
+
 class WordListAdapter(val items: ArrayList<WordListItem>) :
     RecyclerView.Adapter<WordListAdapter.ViewHolder>(), SectionedAdapter {
+
+    var position = 0
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(viewType, parent, false))
     }
@@ -26,7 +30,13 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
         val item = items.get(position)
         holder.word.setText(item.word)
         holder.translation.setText(item.translation)
-        if(item.imageUrl != null && item.imageUrl != "") Picasso.get().load(item.imageUrl).into(holder.image)
+        if (item.imageUrl != null && item.imageUrl != "") Picasso.get().load(item.imageUrl).into(
+            holder.image
+        )
+        holder.itemView.setOnLongClickListener {
+            this.position = holder.position
+            false
+        }
     }
 
     override fun getItemCount(): Int {
@@ -37,7 +47,13 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
         return items.get(position).word.toCharArray().first().toString()
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.itemView.setOnLongClickListener(null);
+        super.onViewRecycled(holder)
+    }
+
+    class ViewHolder(itemView: View) : View.OnCreateContextMenuListener,
+        RecyclerView.ViewHolder(itemView) {
         var word: TextView
         var translation: TextView
         var image: ImageView
@@ -46,6 +62,17 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
             word = itemView.findViewById(R.id.primary_text)
             translation = itemView.findViewById(R.id.sub_text)
             image = itemView.findViewById(R.id.media_image)
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        override fun onCreateContextMenu(
+            menu: ContextMenu,
+            v: View,
+            menuInfo: ContextMenuInfo?
+        ) {
+            menu.add(0, v.id, 0, "Изменить изображение")
+            menu.add(0, v.id, 0, "Выбрать перевод")
+            menu.add(0, v.id, 0, "Удалить")
         }
     }
 }
