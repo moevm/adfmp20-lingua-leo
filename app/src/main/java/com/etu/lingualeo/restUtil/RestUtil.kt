@@ -21,6 +21,7 @@ class RestUtil() {
     private val apiLoginUrl = "https://lingualeo.com/auth"
     private val apiGetWordsUrl = this.apiBaseUrl + "GetWords"
     private val apiGetTranslatesUrl = this.apiBaseUrl + "getTranslates"
+    private val apiSetWordsUrl = this.apiBaseUrl + "SetWords"
 
     private val apiHeaderReferer = "https://lingualeo.com/ru"
 
@@ -62,6 +63,7 @@ class RestUtil() {
         client.newCall(request).enqueue(responseCallback)
     }
 
+    // Авторизация
     fun login(email: String, password: String, onResult: (status: Boolean) -> Unit) {
         val refererHeaders = hashMapOf<String, String>("Referer" to this.apiHeaderReferer)
         val loginRequestData = LoginRequestData(LoginCredentialsData(email, password))
@@ -82,6 +84,7 @@ class RestUtil() {
         })
     }
 
+    // Получение списка слов для главного экрана
     fun getWords(onResult: (status: Boolean, words: ArrayList<WordListItem>?) -> Unit) {
         val params = """
             {
@@ -158,6 +161,7 @@ class RestUtil() {
         })
     }
 
+    // Получение списка переводов
     fun getTranslations(word: String, onResult: (status: Boolean, translation: TranslationResponseData?) -> Unit) {
         this.post(this.apiGetTranslatesUrl, Klaxon().toJsonString(TranslationRequestData(word)), responseCallback = object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -173,6 +177,38 @@ class RestUtil() {
             override fun onFailure(call: Call, e: IOException) {
                 println(e.toString())
                 onResult(false, null)
+            }
+        })
+    }
+
+    // Добавление слова в словарь
+    fun addWord(wordId: Number, translationId: Number, onResult: (status: Boolean) -> Unit) {
+        val setWordsRequestData = SetWordsRequestData(
+                data = listOf(SetWordsData(
+                        wordIds = listOf(wordId),
+                        valueList = SetWordsValueListData(
+                                translation = SetWordsTranslationData(
+                                        id = translationId,
+                                        main = translationId,
+                                        selected = translationId
+                                )
+                        )
+                ))
+        )
+        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(setWordsRequestData),responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val setWordsResponseData = response.body?.string()?.let { Klaxon().parse<SetWordsResponseData>(it) }
+                    onResult(true)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false)
             }
         })
     }
@@ -231,3 +267,28 @@ data class TranslationData(
         @Json(name = "pic_url")
         val picture: String
 )
+
+data class SetWordsRequestData(
+        val op: String = "actionWithWords {action: add}",
+        val data: List<SetWordsData>
+)
+
+data class SetWordsData(
+        val action: String = "add",
+        val mode: String = "0",
+        val wordIds: List<Number>,
+        val valueList: SetWordsValueListData
+)
+
+data class SetWordsValueListData(
+        val wordSetId: Number = 1,
+        val translation: SetWordsTranslationData
+)
+
+data class SetWordsTranslationData(
+        val id: Number,
+        val main: Number,
+        val selected: Number
+)
+
+data class SetWordsResponseData(val status: String)
