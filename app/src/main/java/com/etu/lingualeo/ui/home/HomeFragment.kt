@@ -40,7 +40,10 @@ class HomeFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        
+//        when(item.toString()) {
+//            "Выбрать перевод" ->
+//        }
+        Log.i("wewq", adapter.position.toString())
         return super.onContextItemSelected(item)
     }
 
@@ -85,5 +88,9 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+    }
+
+    fun launchChangeTranslation(wordListId: Int) {
+
     }
 }

@@ -141,7 +141,8 @@ class RestUtil() {
                                 wordList.add(WordListItem(
                                         word = item.wordValue,
                                         translation = item.combinedTranslation,
-                                        imageUrl = item.picture
+                                        imageUrl = item.picture,
+                                        wordId = item.id.toInt()
                                 ))
                             }
                         }
@@ -239,7 +240,8 @@ class GetWordsData(val words: Array<WordItemData>)
 data class WordItemData(
         val wordValue: String,
         val combinedTranslation: String,
-        val picture: String
+        val picture: String,
+        val id: Number
 )
 
 data class TranslationRequestData(val text: String)
