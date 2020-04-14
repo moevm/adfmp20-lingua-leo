@@ -11,9 +11,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.etu.lingualeo.restUtil.RestUtil
 
 class MainActivity : AppCompatActivity() {
-    companion object {
-        val restUtil = RestUtil()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

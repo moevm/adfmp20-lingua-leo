@@ -1,5 +1,6 @@
 package com.etu.lingualeo.restUtil
 
+import android.util.Log
 import com.beust.klaxon.Klaxon
 import com.etu.lingualeo.ui.home.WordListItem
 import okhttp3.*
@@ -10,6 +11,10 @@ import java.io.IOException
 import java.lang.Exception
 
 class RestUtil() {
+
+    companion object {
+        val instance = RestUtil()
+    }
 
     private val apiBaseUrl = "https://api.lingualeo.com/"
     private val apiLoginUrl = this.apiBaseUrl + "api/login"
@@ -116,6 +121,7 @@ class RestUtil() {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val responseJsonString = response.body!!.string()
+                    Log.i("test", responseJsonString)
                     val getWordsResponse = Klaxon().parse<GetWordsResponseData>(responseJsonString)
                     val wordList = arrayListOf<WordListItem>()
                     if (getWordsResponse != null) {
