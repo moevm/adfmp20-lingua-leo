@@ -13,6 +13,7 @@ import com.etu.lingualeo.MainActivity
 import com.etu.lingualeo.R
 import com.etu.lingualeo.restUtil.RestUtil
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlin.collections.ArrayList
 
 class HomeFragment : Fragment() {
@@ -62,16 +63,30 @@ class HomeFragment : Fragment() {
         val password = preferences.getString("ll_password", null)
         RestUtil.instance.login(login.toString(), password.toString(), { status ->
             run {
-                RestUtil.instance.getWords { status: Boolean, words: ArrayList<WordListItem>? ->
-                    Log.i("test", words.toString())
-                    run {
-                        if ((status) && (words != null)) {
-                            this.words = ArrayList(words.map { word ->
-                                word.word = word.word.capitalize()
-                                word.translation = word.translation.capitalize()
-                                word
-                            })
-                            this.words = ArrayList(words.sortedBy { it.word })
+                if (!status) {
+                    activity!!.runOnUiThread {
+                        progressBar.visibility = View.GONE
+                        statusText.text = "Неверный логин или пароль"
+                        statusText.visibility = View.VISIBLE
+                    }
+                } else {
+                    RestUtil.instance.getWords { status: Boolean, words: ArrayList<WordListItem>? ->
+                        Log.i("test", words.toString())
+                        run {
+                            if ((status) && (words != null)) {
+                                this.words = ArrayList(words.map { word ->
+                                    word.word = word.word.capitalize()
+                                    word.translation = word.translation.capitalize()
+                                    word
+                                })
+                                this.words = ArrayList(words.sortedBy { it.word })
+                            } else {
+                                activity!!.runOnUiThread {
+                                    progressBar.visibility = View.GONE
+                                    statusText.text = "Ваш словарь пуст"
+                                    statusText.visibility = View.VISIBLE
+                                }
+                            }
                         }
                     }
                 }
