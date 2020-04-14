@@ -1,6 +1,7 @@
 package com.etu.lingualeo.ui.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,7 @@ class WordListAdapter(val items: ArrayList<WordListItem>) :
         val item = items.get(position)
         holder.word.setText(item.word)
         holder.translation.setText(item.translation)
-        if(item.imageUrl != null) Picasso.get().load(item.imageUrl).into(holder.image)
+        if(item.imageUrl != null && item.imageUrl != "") Picasso.get().load(item.imageUrl).into(holder.image)
     }
 
     override fun getItemCount(): Int {
