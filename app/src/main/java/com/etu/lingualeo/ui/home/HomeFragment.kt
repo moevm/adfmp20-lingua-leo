@@ -37,26 +37,9 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    fun getMockWords() {
-        words.add(
-            WordListItem(
-                "indifferent",
-                "безразличный",
-                "https://contentcdn.lingualeo.com/uploads/picture/3053472.png"
-            )
-        )
-        words.add(WordListItem("help", "помощь"))
-        words.add(WordListItem("accomplish", "достигать"))
-        words.add(WordListItem("acknowledge", "признавать"))
-        words.add(WordListItem("acquaintance", "знакомый"))
-        words.add(WordListItem("agenda", "повестка дня"))
-        words.add(WordListItem("biased", "предвзятый"))
-        words = ArrayList(words.map { word ->
-            word.word = word.word.capitalize()
-            word.translation = word.translation.capitalize()
-            word
-        })
-        words = ArrayList(words.sortedBy { it.word })
+    override fun onResume() {
+        super.onResume()
+        getWords()
     }
 
     fun getWords() {
