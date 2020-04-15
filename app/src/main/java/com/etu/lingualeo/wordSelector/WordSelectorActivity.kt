@@ -7,7 +7,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
@@ -20,13 +19,6 @@ import com.etu.lingualeo.R
 import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.word_selector_activity.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
-
-//const val TEST_STR = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-//        "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud " +
-//        "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure " +
-//        "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-//        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-//        "mollit anim id est laborum."
 
 class WordSelectorActivity : AppCompatActivity() {
 
@@ -53,6 +45,19 @@ class WordSelectorActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        super.onContextItemSelected(item)
+        when(item.toString()) {
+            "Выбрать все" -> {
+                for (i in 0 until adapter.getCount()) {
+                    wordListView.setItemChecked(i, true)
+                    selectFromList(words[i], true)
+                }
+            }
+        }
+        return true
+    }
+
     override fun onCreateContextMenu(
         menu: ContextMenu,
         v: View,
@@ -70,7 +75,7 @@ class WordSelectorActivity : AppCompatActivity() {
         supportActionBar?.title = "Выбор слов из текста"
 
         ss = SpannableString(intent.getStringExtra("text"))
-
+        getKnownWords()
         getWordsFromText()
         generateSelectableString()
         text.setMovementMethod(BetterLinkMovementMethod.getInstance());
@@ -89,7 +94,7 @@ class WordSelectorActivity : AppCompatActivity() {
             text.invalidate()
         }
         registerForContextMenu(textView5)
-        textView5.setOnClickListener {textView5.performLongClick()}
+        textView5.setOnClickListener { textView5.performLongClick() }
     }
 
     fun selectFromText(word: String) {
@@ -110,21 +115,12 @@ class WordSelectorActivity : AppCompatActivity() {
             ArrayList(ss.toString().split(Regex("(?<=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])|(?=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])")))
     }
 
-    fun getKnownWords() {
-        //TODO: получить список слов из словаря
-        knownWords.add("ipsum")
-        knownWords.add("sit")
-        knownWords.add("adipiscing")
-        knownWords.add("exercitation")
-        knownWords.add("voluptate")
-    }
-
     fun generateSelectableString() {
         var currentPosition = 0
         val wordsToRemove = ArrayList<String>()
         for (word in words) {
-            if (word.length <= 1) {
-                currentPosition++
+            if (word.length <= 1 || knownWords.contains(word)) {
+                currentPosition += word.length
                 wordsToRemove.add(word)
             } else {
                 val span: ClickableSpan = object : ClickableSpan() {
@@ -148,5 +144,23 @@ class WordSelectorActivity : AppCompatActivity() {
         }
         words.removeAll { word -> wordsToRemove.contains(word) }
         words = ArrayList(words.distinct().sortedBy { it })
+    }
+
+    fun getKnownWords() {
+        knownWords.add("I")
+        knownWords.add("you")
+        knownWords.add("he")
+        knownWords.add("she")
+        knownWords.add("it")
+        knownWords.add("we")
+        knownWords.add("they")
+        knownWords.add("as")
+        knownWords.add("at")
+        knownWords.add("by")
+        knownWords.add("but")
+        knownWords.add("in")
+        knownWords.add("of")
+        knownWords.add("to")
+        knownWords.add("the")
     }
 }

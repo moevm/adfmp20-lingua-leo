@@ -1,8 +1,11 @@
 package com.etu.lingualeo.ui.home
 
+import android.app.Activity
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -11,18 +14,21 @@ import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.etu.lingualeo.MainActivity
 import com.etu.lingualeo.R
 import com.etu.lingualeo.restUtil.RestUtil
 import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlin.collections.ArrayList
+import java.io.ByteArrayOutputStream
+
+
+const val RESULT_PICKER = 3
 
 class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
 
     var words = ArrayList<WordListItem>()
     var wordsShown = ArrayList<WordListItem>()
+    var currentWordImagePickerId = 0
 
     lateinit var adapter: WordListAdapter
 
@@ -44,7 +50,6 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        Log.i("dsg", "aekrjlESAJK")
         inflater.inflate(R.menu.search_menu, menu)
         val searchItem = menu.findItem(R.id.action_search)
         val searchView = MenuItemCompat.getActionView(searchItem) as SearchView
@@ -55,8 +60,6 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
         wordsShown.clear()
         if(newText != null && newText != "") {
             val newWords = words.filter { word -> word.word.contains(newText.capitalize()) || word.translation.contains(newText.capitalize()) }
-            Log.i("asra", newText)
-            Log.i("asra", newWords.toString())
             for(word in newWords) {
                 wordsShown.add(word)
             }
@@ -75,6 +78,7 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when(item.toString()) {
+            "Изменить изображение" -> openWordImagePicker(adapter.position)
             "Выбрать перевод" -> launchChangeTranslation(adapter.position)
             "Удалить" -> deleteWord(adapter.position)
         }
@@ -149,5 +153,42 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
                 }
             })
         }
+    }
+
+    fun openWordImagePicker(wordId: Int) {
+        currentWordImagePickerId = wordId
+        val intentGallery = Intent(Intent.ACTION_GET_CONTENT);
+        intentGallery.addCategory(Intent.CATEGORY_OPENABLE);
+        intentGallery.setType("image/*")
+        startActivityForResult(intentGallery, RESULT_PICKER)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RESULT_PICKER && resultCode == Activity.RESULT_OK) {
+            val fileName = data!!.data!!
+            val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName);
+            val pictureEncoded = encodeImage(picture)
+            if(pictureEncoded != null) {
+                RestUtil.instance.uploadPicture(pictureEncoded, {status, url ->
+                    run {
+                        if(url != null) {
+                            RestUtil.instance.changePicture(currentWordImagePickerId, url, {status ->
+                                if(status) {
+                                    activity!!.runOnUiThread { getWords() }
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    private fun encodeImage(bm: Bitmap): String? {
+        val baos = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b: ByteArray = baos.toByteArray()
+        return Base64.encodeToString(b, Base64.DEFAULT)
     }
 }
