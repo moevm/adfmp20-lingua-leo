@@ -267,14 +267,14 @@ class RestUtil() {
 
     fun changePicture(wordId: Number, url: String, onResult: (status: Boolean) -> Unit) {
         val changePictureRequestData = ChangePictureRequestData(
-                data = ChangePictureData(
+                data = listOf(ChangePictureData(
                         wordIds = listOf(wordId),
                         valueList = ChangePictureValueListData(
                                 translation = ChangePictureTranslationData(
                                         pic = url
                                 )
                         )
-                )
+                ))
         )
         this.post(this.apiSetWordsUrl, Klaxon().toJsonString(changePictureRequestData), responseCallback = object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -438,7 +438,7 @@ data class UploadImageResponseData(
 
 data class ChangePictureRequestData(
         val op: String = "new_updateWordAttr",
-        val data: ChangePictureData
+        val data: List<ChangePictureData>
 )
 
 data class ChangePictureData(
