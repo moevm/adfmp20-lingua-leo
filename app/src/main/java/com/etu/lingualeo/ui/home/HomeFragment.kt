@@ -93,10 +93,10 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
         RestUtil.instance.login(login.toString(), password.toString(), { status ->
             run {
                 if (!status) {
-                    activity!!.runOnUiThread {
-                        progressBar.visibility = View.GONE
-                        statusText.text = "Неверный логин или пароль"
-                        statusText.visibility = View.VISIBLE
+                    activity?.runOnUiThread {
+                        progressBar?.visibility = View.GONE
+                        statusText?.text = "Неверный логин или пароль"
+                        statusText?.visibility = View.VISIBLE
                     }
                 } else {
                     RestUtil.instance.getWords { status: Boolean, words: ArrayList<WordListItem>? ->
@@ -113,14 +113,14 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
                                 for(word in this.words) {
                                     wordsShown.add(word)
                                 }
-                                activity!!.runOnUiThread { adapter.notifyDataSetChanged() }
+                                activity?.runOnUiThread { adapter.notifyDataSetChanged() }
                             } else {
-                                activity!!.runOnUiThread {
-                                    statusText.text = "Ваш словарь пуст"
-                                    statusText.visibility = View.VISIBLE
+                                activity?.runOnUiThread {
+                                    statusText?.text = "Ваш словарь пуст"
+                                    statusText?.visibility = View.VISIBLE
                                 }
                             }
-                            activity!!.runOnUiThread { progressBar.visibility = View.GONE }
+                            activity?.runOnUiThread { progressBar?.visibility = View.GONE }
                         }
                     }
                 }

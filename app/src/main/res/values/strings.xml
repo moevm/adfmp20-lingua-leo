@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">LinguaLeo</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_home">Мой словарь</string>
+    <string name="title_dashboard">Добавить</string>
     <string name="title_settings">Настройки</string>
 
     <!-- Preference Titles -->

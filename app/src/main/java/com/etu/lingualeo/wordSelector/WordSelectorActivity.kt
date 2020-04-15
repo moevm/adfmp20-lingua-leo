@@ -8,6 +8,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.Log
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -52,6 +53,16 @@ class WordSelectorActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onCreateContextMenu(
+        menu: ContextMenu,
+        v: View,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menu.add(0, v.id, 0, "Выбрать все")
+        menu.add(0, v.id, 0, "Выбрать отсутствующие в словаре")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_selector_activity)
@@ -77,6 +88,8 @@ class WordSelectorActivity : AppCompatActivity() {
         textView4.setOnClickListener {
             text.invalidate()
         }
+        registerForContextMenu(textView5)
+        textView5.setOnClickListener {textView5.performLongClick()}
     }
 
     fun selectFromText(word: String) {
