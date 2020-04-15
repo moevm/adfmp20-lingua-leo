@@ -299,14 +299,14 @@ class RestUtil() {
 
     fun changeTranslation(wordId: Number, translationId: Number, onResult: (status: Boolean) -> Unit) {
         val changeTranslationRequestData = ChangeTranslationRequestData(
-                data = ChangeTranslationData(
+                data = listOf(ChangeTranslationData(
                         wordIds = listOf(wordId),
                         valueList = ChangeTranslationValueListData(
                                 translation = ChangeTranslationTranslationData(
                                         id = translationId
                                 )
                         )
-                )
+                ))
         )
         this.post(this.apiSetWordsUrl, Klaxon().toJsonString(changeTranslationRequestData), responseCallback = object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -459,7 +459,7 @@ data class ChangePictureTranslationData(
 
 data class ChangeTranslationRequestData(
         val op: String = "new_updateWordAttr",
-        val data: ChangeTranslationData
+        val data: List<ChangeTranslationData>
 )
 
 data class ChangeTranslationData(
