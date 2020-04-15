@@ -7,6 +7,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.etu.lingualeo.R
+import com.etu.lingualeo.restUtil.RestUtil
 import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.word_selector_activity.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
@@ -47,7 +49,7 @@ class WordSelectorActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         super.onContextItemSelected(item)
-        when(item.toString()) {
+        when (item.toString()) {
             "Выбрать все" -> {
                 for (i in 0 until adapter.getCount()) {
                     wordListView.setItemChecked(i, true)
@@ -75,11 +77,9 @@ class WordSelectorActivity : AppCompatActivity() {
         supportActionBar?.title = "Выбор слов из текста"
 
         ss = SpannableString(intent.getStringExtra("text"))
-        getKnownWords()
-        getWordsFromText()
-        generateSelectableString()
+        val _words = getWordsFromText()
+        getKnownWords(_words)
         text.setMovementMethod(BetterLinkMovementMethod.getInstance());
-        text.setText(ss)
         text.highlightColor = Color.LTGRAY
 
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, words)
@@ -110,16 +110,15 @@ class WordSelectorActivity : AppCompatActivity() {
         text.invalidate()
     }
 
-    fun getWordsFromText() {
-        words =
-            ArrayList(ss.toString().split(Regex("(?<=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])|(?=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])")))
+    fun getWordsFromText(): ArrayList<String> {
+        return ArrayList(ss.toString().split(Regex("(?<=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])|(?=[.,/#!?\$%^&*;:{}=\\-_`~() \n\"'])")))
     }
 
-    fun generateSelectableString() {
+    fun generateSelectableString(_words: ArrayList<String>) {
         var currentPosition = 0
         val wordsToRemove = ArrayList<String>()
-        for (word in words) {
-            if (word.length <= 1 || knownWords.contains(word)) {
+        for (word in _words) {
+            if (word.length <= 1 || knownWords.contains(word.toLowerCase())) {
                 currentPosition += word.length
                 wordsToRemove.add(word)
             } else {
@@ -142,11 +141,19 @@ class WordSelectorActivity : AppCompatActivity() {
                 currentPosition += word.length
             }
         }
-        words.removeAll { word -> wordsToRemove.contains(word) }
-        words = ArrayList(words.distinct().sortedBy { it })
+        _words.removeAll { word -> wordsToRemove.contains(word) }
+        val temp = ArrayList(_words.distinct().sortedBy { it })
+        for (word in temp) {
+            words.add(word)
+        }
+        runOnUiThread {
+            text.setText(ss)
+            adapter.notifyDataSetChanged()
+            text.invalidate()
+        }
     }
 
-    fun getKnownWords() {
+    fun getKnownWords(_words: ArrayList<String>) {
         knownWords.add("I")
         knownWords.add("you")
         knownWords.add("he")
@@ -162,5 +169,15 @@ class WordSelectorActivity : AppCompatActivity() {
         knownWords.add("of")
         knownWords.add("to")
         knownWords.add("the")
+        RestUtil.instance.getWords({ status, words ->
+            if (status) {
+                if (words != null) {
+                    for (word in words) {
+                        knownWords.add(word.word)
+                    }
+                }
+                generateSelectableString(_words)
+            }
+        })
     }
 }
