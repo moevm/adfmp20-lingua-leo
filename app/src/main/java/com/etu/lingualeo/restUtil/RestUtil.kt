@@ -297,6 +297,38 @@ class RestUtil() {
         })
     }
 
+    fun changeTranslation(wordId: Number, translationId: Number, onResult: (status: Boolean) -> Unit) {
+        val changeTranslationRequestData = ChangeTranslationRequestData(
+                data = ChangeTranslationData(
+                        wordIds = listOf(wordId),
+                        valueList = ChangeTranslationValueListData(
+                                translation = ChangeTranslationTranslationData(
+                                        id = translationId
+                                )
+                        )
+                )
+        )
+        this.post(this.apiSetWordsUrl, Klaxon().toJsonString(changeTranslationRequestData), responseCallback = object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val setWordsResponseData = response.body?.string()?.let { Klaxon().parse<SetWordsResponseData>(it) }
+                    if ((setWordsResponseData == null) || (setWordsResponseData.status != "ok")) {
+                        throw IOException("Change translation error")
+                    }
+                    onResult(true)
+                } catch (e: Exception) {
+                    println(e.toString())
+                    onResult(false)
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println(e.toString())
+                onResult(false)
+            }
+        })
+    }
+
 }
 
 data class LoginRequestData(
@@ -423,4 +455,26 @@ data class ChangePictureValueListData(
 data class ChangePictureTranslationData(
         val pic: String,
         val id: Number = 1
+)
+
+data class ChangeTranslationRequestData(
+        val op: String = "new_updateWordAttr",
+        val data: ChangeTranslationData
+)
+
+data class ChangeTranslationData(
+        val action: String = "update",
+        val mode: String = "update",
+        val wordIds: List<Number>,
+        val valueList: ChangeTranslationValueListData
+)
+
+data class ChangeTranslationValueListData(
+        val translation: ChangeTranslationTranslationData
+)
+
+data class ChangeTranslationTranslationData(
+        val id: Number,
+        val selected: Number = 1,
+        val main: Number = 1
 )
