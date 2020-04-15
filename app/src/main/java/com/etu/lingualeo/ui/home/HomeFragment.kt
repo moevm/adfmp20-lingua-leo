@@ -171,6 +171,7 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
             val pictureEncoded = encodeImage(picture)
             if(pictureEncoded != null) {
                 RestUtil.instance.uploadPicture(pictureEncoded, {status, url ->
+                    Log.i("adsdf", url)
                     run {
                         if(url != null) {
                             RestUtil.instance.changePicture(currentWordImagePickerId, url, {status ->
