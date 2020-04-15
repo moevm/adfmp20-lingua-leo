@@ -395,7 +395,8 @@ data class DeleteWordsValueListData(val globalSetId: Number = 1)
 
 data class UploadImageRequestData(
         val base64: String,
-        val directory: String = "uploads/picture/translation"
+        val directory: String = "uploads/picture/translation",
+        val apiVersion: String = "1.0.0"
 )
 
 data class UploadImageResponseData(
