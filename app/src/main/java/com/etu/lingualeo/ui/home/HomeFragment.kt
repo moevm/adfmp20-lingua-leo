@@ -139,6 +139,7 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
             array.add(word.word)
             val intent = Intent(context, WordTranslationSelectorActivity::class.java)
             intent.putExtra("words", array)
+            intent.putExtra("isChanging", true)
             startActivity(intent)
         }
     }

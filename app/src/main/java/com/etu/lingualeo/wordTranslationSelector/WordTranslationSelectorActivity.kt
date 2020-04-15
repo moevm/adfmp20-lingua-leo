@@ -24,6 +24,7 @@ class WordTranslationSelectorActivity : AppCompatActivity() {
     var wordsLeft = ArrayList<String>()
     var selectionId = 0
     var wordId = 0
+    var isChanging = false
 
     lateinit var adapter: ArrayAdapter<String>
 
@@ -34,7 +35,7 @@ class WordTranslationSelectorActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save -> {
-            addToDictionary()
+            if(isChanging) changeTranslation() else addToDictionary()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -45,6 +46,8 @@ class WordTranslationSelectorActivity : AppCompatActivity() {
         setContentView(R.layout.activity_word_translation_selector)
         supportActionBar?.title = "Выбор перевода"
         val words = (intent.getSerializableExtra("words")) as ArrayList<String>
+        isChanging = intent.getBooleanExtra("isChanging", false)
+        Log.i("dsadr", isChanging.toString())
         word = words.first()
         wordsLeft = words
         wordsLeft.removeAt(0)
@@ -100,6 +103,15 @@ class WordTranslationSelectorActivity : AppCompatActivity() {
                     }
                     finish()
                 }
+            }
+        })
+    }
+
+    fun changeTranslation() {
+        val translation = translationsRaw[selectionId]
+        RestUtil.instance.changeTranslation(wordId, translation.translationId, { status ->
+            if (status) {
+                runOnUiThread { finish() }
             }
         })
     }
