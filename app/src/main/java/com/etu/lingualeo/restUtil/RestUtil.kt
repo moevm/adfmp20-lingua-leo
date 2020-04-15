@@ -139,9 +139,13 @@ class RestUtil() {
                     if (getWordsResponse != null) {
                         for (dataItem: GetWordsData in getWordsResponse.data) {
                             for (item: WordItemData in dataItem.words) {
+                                var translation: String = item.combinedTranslation
+                                if (item.combinedTranslation.contains(';')) {
+                                    translation = item.combinedTranslation.split(';')[0]
+                                }
                                 wordList.add(WordListItem(
                                         word = item.wordValue,
-                                        translation = item.combinedTranslation,
+                                        translation = translation,
                                         imageUrl = item.picture,
                                         wordId = item.id
                                 ))
