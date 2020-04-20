@@ -108,6 +108,7 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
                             if ((status) && (words != null)) {
                                 this.words.clear()
                                 this.wordsShown.clear()
+                                activity?.runOnUiThread { adapter.notifyDataSetChanged() }
                                 for(word in words) {
                                     word.word = word.word.capitalize()
                                     word.translation = word.translation.capitalize()
@@ -168,21 +169,33 @@ class HomeFragment : SearchView.OnQueryTextListener, Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RESULT_PICKER && resultCode == Activity.RESULT_OK) {
             val fileName = data!!.data!!
-            val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName);
-            val pictureEncoded = encodeImage(picture)
-            if(pictureEncoded != null) {
-                RestUtil.instance.uploadPicture(pictureEncoded, {status, url ->
-                    Log.i("adsdf", url)
-                    run {
-                        if(url != null) {
-                            RestUtil.instance.changePicture(currentWordImagePickerId, url, {status ->
-                                if(status) {
-                                    activity!!.runOnUiThread { getWords() }
-                                }
-                            })
+            val picture = MediaStore.Images.Media.getBitmap(context?.contentResolver, fileName)
+            if(picture.allocationByteCount < 2000000) {
+                activity!!.runOnUiThread { Toast.makeText(context, "Загрузка изображения...", Toast.LENGTH_SHORT).show() }
+                val pictureEncoded = encodeImage(picture)
+                if (pictureEncoded != null) {
+                    RestUtil.instance.uploadPicture(pictureEncoded, { status, url ->
+                        run {
+                            if (url != null) {
+                                RestUtil.instance.changePicture(
+                                    currentWordImagePickerId,
+                                    url,
+                                    { status ->
+                                        if (status) {
+                                            activity!!.runOnUiThread { getWords() }
+                                            activity!!.runOnUiThread { Toast.makeText(context, "Изображение успешно загружено", Toast.LENGTH_SHORT).show() }
+                                        } else {
+                                            activity!!.runOnUiThread { Toast.makeText(context, "Ошибка загрузки", Toast.LENGTH_SHORT).show() }
+                                        }
+                                    })
+                            } else {
+                                activity!!.runOnUiThread { Toast.makeText(context, "Ошибка загрузки", Toast.LENGTH_SHORT).show() }
+                            }
                         }
-                    }
-                })
+                    })
+                }
+            } else {
+                activity!!.runOnUiThread { Toast.makeText(context, "Максимальный размер изображения 200КБ", Toast.LENGTH_SHORT).show() }
             }
         }
     }
