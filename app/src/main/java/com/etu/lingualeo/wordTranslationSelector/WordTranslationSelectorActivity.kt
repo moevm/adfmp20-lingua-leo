@@ -47,7 +47,6 @@ class WordTranslationSelectorActivity : AppCompatActivity() {
         supportActionBar?.title = "Выбор перевода"
         val words = (intent.getSerializableExtra("words")) as ArrayList<String>
         isChanging = intent.getBooleanExtra("isChanging", false)
-        Log.i("dsadr", isChanging.toString())
         word = words.first()
         wordsLeft = words
         wordsLeft.removeAt(0)

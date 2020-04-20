@@ -16,8 +16,10 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.etu.lingualeo.R
 import com.etu.lingualeo.restUtil.RestUtil
+import com.etu.lingualeo.wordTranslationAutoSelector.WordTranslationAutoSelectorActivity
 import com.etu.lingualeo.wordTranslationSelector.WordTranslationSelectorActivity
 import kotlinx.android.synthetic.main.word_selector_activity.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
@@ -38,7 +40,9 @@ class WordSelectorActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save -> {
-            val intent = Intent(this, WordTranslationSelectorActivity::class.java)
+            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val autoTranslate = preferences.getBoolean("auto_translate", false)
+            val intent = Intent(this, if(autoTranslate) WordTranslationAutoSelectorActivity::class.java else WordTranslationSelectorActivity::class.java)
             intent.putExtra("words", ArrayList(selectedWords.sortedBy { it }))
             startActivity(intent)
             finish()
